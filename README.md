@@ -97,24 +97,24 @@ source /opt/ros/humble/setup.bash
 cd ~/scorpio_ws
 source install/setup.bash
 ros2 run scorpio_zadanie_rekrutacyjne_software echo
-'''
+```
 
 ### Test communication
 
-open 2nd terminal
+Open 2nd terminal:
 
-'''bash
+```bash
 source /opt/ros/humble/setup.bash
 cd ~/scorpio_ws
 source install/setup.bash
 ros2 topic echo /echo/output
-'''
+```
 
-open 3rd terminal
+Open 3rd terminal:
 
-'''bash
+```bash
 source /opt/ros/humble/setup.bash
 cd ~/scorpio_ws
 source install/setup.bash
 ros2 topic pub /echo/input std_msgs/msg/String "{data: 'test'}"
-'''
+```
