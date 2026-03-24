@@ -85,3 +85,36 @@ Pamiętaj, że zadanie służy sprawdzeniu wielu umiejętności - nie tylko prog
 - [Oficjalna dokumentacja RCLCPP](https://docs.ros.org/en/humble/p/rclcpp/)
 
 **Jeżeli będziesz miał jakiekolwiek wątpliwości i problemy z zadaniem śmiało skontaktuj się z nami na maila projekt@scorpio.pwr.edu.pl! Powodzenia :)**
+
+## ROS2 setup and test
+
+Workspace was created and built using ROS2 Humble.
+
+### Run node
+
+```bash
+source /opt/ros/humble/setup.bash
+cd ~/scorpio_ws
+source install/setup.bash
+ros2 run scorpio_zadanie_rekrutacyjne_software echo
+'''
+
+### Test communication
+
+open 2nd terminal
+
+'''bash
+source /opt/ros/humble/setup.bash
+cd ~/scorpio_ws
+source install/setup.bash
+ros2 topic echo /echo/output
+'''
+
+open 3rd terminal
+
+'''bash
+source /opt/ros/humble/setup.bash
+cd ~/scorpio_ws
+source install/setup.bash
+ros2 topic pub /echo/input std_msgs/msg/String "{data: 'test'}"
+'''
