@@ -118,3 +118,24 @@ cd ~/scorpio_ws
 source install/setup.bash
 ros2 topic pub /echo/input std_msgs/msg/String "{data: 'test'}"
 ```
+
+## Results (screenshots)
+
+### Cube detector node communication test
+
+#### Node running
+
+![Cube detector ](assets/readme/cube_detector_node.png)
+
+### Ilmenite check node
+
+#### Node running
+
+![Ilmenite node](assets/readme/ilmenite_node.png)
+
+
+## Notes
+
+- Screenshots show successful communication between nodes using ROS2 topics
+- Example flow:
+  - `/cube_detector/input` → node → `/cube_detector/output`
