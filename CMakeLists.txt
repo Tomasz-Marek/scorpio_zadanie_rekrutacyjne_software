@@ -9,7 +9,8 @@ find_package(rclcpp_components REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
-# find_package(cv_bridge REQUIRED) # Example of importing cv_bridge
+find_package(cv_bridge REQUIRED) # Example of importing cv_bridge
+find_package(OpenCV REQUIRED)
 
 include_directories(include)
 
@@ -45,8 +46,13 @@ ament_target_dependencies(ilmeniteCheckNode
   geometry_msgs
   sensor_msgs
 )
+target_include_directories(ilmeniteCheckNode PRIVATE
+  ${OpenCV_INCLUDE_DIRS}
+)
+target_link_libraries(ilmeniteCheckNode
+  ${OpenCV_LIBS}
+)
 rclcpp_components_register_node(ilmeniteCheckNode PLUGIN "recruitment_task::IlmeniteCheckNode" EXECUTABLE ilmenite_check)
-
 
 # Install libraries
 install(TARGETS
