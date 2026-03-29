@@ -139,3 +139,57 @@ ros2 topic pub /echo/input std_msgs/msg/String "{data: 'test'}"
 - Screenshots show successful communication between nodes using ROS2 topics
 - Example flow:
   - `/cube_detector/input` → node → `/cube_detector/output`
+
+### IlmeniteCheck task
+```bash
+source /opt/ros/humble/setup.bash
+cd ~/scorpio_ws
+source install/setup.bash
+ros2 run scorpio_zadanie_rekrutacyjne_software ilmenite_check
+```
+![Ilmenite node results](src/scorpio_zadanie_rekrutacyjne_software/assets/readme/ilmenite_check.png)
+
+## Results
+
+- Proper error handling implemented
+- Ilmenite percentage estimation working
+
+### CubeDetection task
+
+Terminal 1:
+```bash
+source /opt/ros/humble/setup.bash
+source ~/scorpio_ws/install/setup.bash
+ros2 bag play ~/scorpio_ws/bags/camera_bag --loop
+```
+
+Terminal 2:
+```bash
+source /opt/ros/humble/setup.bash
+source ~/scorpio_ws/install/setup.bash
+ros2 run scorpio_zadanie_rekrutacyjne_software cube_detector
+```
+
+Terminal 3:
+```bash
+source /opt/ros/humble/setup.bash
+rqt
+```
+
+## Results
+
+### What works
+- Red, green and blue cubes are detected correctly
+- Stable detection pipeline based on HSV filtering and contour analysis
+
+### Development Approach
+- Two different approaches to cube detection were explored:
+  - **Advanced approach** – more complex detection logic (partially implemented)
+  - **Final approach** – simplified and more robust version used in the final solution
+
+- Due to limited development time, the advanced approach was not fully completed and the simpler, more stable solution was chosen
+
+### Limitations
+- White cube detection is not reliable
+- Current algorithm is sensitive to lighting conditions
+- Advanced detection pipeline remains unfinished and left

@@ -34,6 +34,13 @@ ament_target_dependencies(cubeDetectorNode
   std_msgs
   geometry_msgs
   sensor_msgs
+  cv_bridge
+)
+target_include_directories(cubeDetectorNode PRIVATE
+  ${OpenCV_INCLUDE_DIRS}
+)
+target_link_libraries(cubeDetectorNode
+  ${OpenCV_LIBS}
 )
 rclcpp_components_register_node(cubeDetectorNode PLUGIN "recruitment_task::CubeDetectorNode" EXECUTABLE cube_detector)
 

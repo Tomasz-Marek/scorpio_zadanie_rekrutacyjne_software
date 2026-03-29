@@ -1,6 +1,4 @@
 #include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
-
 #include <opencv2/opencv.hpp>
 #include <algorithm>
 #include <filesystem>
@@ -26,20 +24,21 @@ public:
 private:
     void process_samples()
     {
-        // TODO: set path to samples folder
+        // Set path to samples folder
         const fs::path samples_folder = "/home/tomek/scorpio_ws/src/scorpio_zadanie_rekrutacyjne_software/assets/ilmenite_samples";
-        // TODO: get image paths from folder
+
+        // Get image paths from folder
         std::vector<fs::path> image_paths = get_image_paths(samples_folder);
-        // TODO: if no images found, print warning
         if (image_paths.empty())
         {
             RCLCPP_WARN(this->get_logger(), "No images found in folder: %s", samples_folder.c_str());
             return;
         }
-        // TODO: loop through images
+
+        // Loop through images
         for (const auto& image_path : image_paths)
         {
-            // TODO: process each image
+            // Process each image
             process_single_image(image_path);
         }
 
@@ -49,20 +48,21 @@ private:
     {
         std::vector<fs::path> image_paths;
 
-        // TODO: check if folder exists
+        // Check if folder exists
         if (!fs::exists(folder_path))
         {
             RCLCPP_WARN(this->get_logger(), "This path does not exist: %s", folder_path.c_str());
             return image_paths;
         }
-        // TODO: check if path is a directory
+
+        // Check if path is a directory
         if (!fs::is_directory(folder_path))
         {
             RCLCPP_WARN(this->get_logger(), "This path is not directory: %s", folder_path.c_str());
             return image_paths;
         }
-        // TODO: iterate through directory entries
-        // TODO: keep only jpg / jpeg / png files
+
+        // iterate through directory entries, keep only jpg / jpeg / png files
         for (const auto& entry : fs::directory_iterator(folder_path))
         {
             const fs::path image_path = entry.path();
@@ -83,6 +83,7 @@ private:
 
             image_paths.push_back(image_path);
         }
+
         std::sort(image_paths.begin(), image_paths.end());
         return image_paths;
 
@@ -90,75 +91,69 @@ private:
 
     void process_single_image(const fs::path& image_path)
     {
-        // TODO: print current file name
+        // Check if path exist and print its name
         if (!fs::exists(image_path))
         {
             RCLCPP_WARN(this->get_logger(), "Invalid image path: %s", image_path.c_str());
             return;
         }
-
-        RCLCPP_INFO(this->get_logger(), "Inspecting sample: %s", image_path.filename().c_str());
+        // RCLCPP_INFO(this->get_logger(), "Inspecting sample: %s", image_path.filename().c_str());
         
-        // TODO: load image using cv::imread
+        // Load image using cv::imread
         cv::Mat sample_image = cv::imread(image_path.string());
         
-        // TODO: check if image is empty
+        // Check if image is empty
         if (sample_image.empty())
         {
             RCLCPP_WARN(this->get_logger(), "Error while reading the image: %s", image_path.c_str());
             return;
         }
+        // RCLCPP_INFO(this->get_logger(), "Sample Image width and height: %d x %d", sample_image.cols, sample_image.rows);
 
-        // TODO: print image width and height
-        RCLCPP_INFO(this->get_logger(), "Sample Image width and height: %d x %d", sample_image.cols, sample_image.rows);
-
+        // Convert image to greyscale
         cv::Mat gray_image;
         cv::cvtColor(sample_image, gray_image, cv::COLOR_BGR2GRAY);
-
-        // TODO: print image width and height
-        RCLCPP_INFO(this->get_logger(), "Grayscale Image width and height: %d x %d", gray_image.cols, gray_image.rows);
+        // RCLCPP_INFO(this->get_logger(), "Grayscale Image width and height: %d x %d", gray_image.cols, gray_image.rows);
         save_debug_image(gray_image, image_path, "gray");
 
-        cv::Mat blur_mask;
-        cv::GaussianBlur(gray_image, blur_mask, cv::Size(3, 3), 0);
+        // Blur image
+        cv::Mat blur_image;
+        cv::GaussianBlur(gray_image, blur_image, cv::Size(3, 3), 2);
+        save_debug_image(blur_image, image_path, "blur");
 
+        // Threshold image
+        cv::Mat thresh_image;
+        cv::threshold(blur_image, thresh_image, 125, 255, cv::THRESH_BINARY_INV);
+        // RCLCPP_INFO(this->get_logger(), "Threshold Image width and height: %d x %d", thresh_image.cols, thresh_image.rows);
+        save_debug_image(thresh_image, image_path, "threshold");
 
-        cv::Mat ilmenite_mask;
-        cv::threshold(gray_image, ilmenite_mask, 100, 255, cv::THRESH_BINARY_INV);
-        // TODO: print image width and height
-        RCLCPP_INFO(this->get_logger(), "Threshold Image width and height: %d x %d", ilmenite_mask.cols, ilmenite_mask.rows);
-        save_debug_image(ilmenite_mask, image_path, "mask");
+        // Morph image
+        cv::Mat kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(4, 4));
+        cv::Mat morph_image;
+        cv::morphologyEx(thresh_image, morph_image, cv::MORPH_OPEN, kernel);
+        cv::morphologyEx(morph_image, morph_image, cv::MORPH_CLOSE, kernel);
+        save_debug_image(morph_image, image_path, "morphology"); 
 
-        
-        int count_ilmenite = cv::countNonZero(ilmenite_mask);
+        const cv::Mat clean_image = morph_image;
 
-        double ilmenite_percent = (static_cast<double>(count_ilmenite) / (ilmenite_mask.cols * ilmenite_mask.rows)) * 100;
-
+        // Calculate percent of ilmenite in sample
+        int count_ilmenite = cv::countNonZero(clean_image);
+        double ilmenite_percent = (static_cast<double>(count_ilmenite) / (clean_image.cols * clean_image.rows)) * 100;
         RCLCPP_INFO(this->get_logger(), "%s - %.2f %%", image_path.filename().c_str(), ilmenite_percent);
 
-        // cv::imshow("Sample Image", sample_image);
-        // cv::imshow("Gray Image", gray_image);
-        // cv::imshow("Ilmenite Mask", ilmenite_mask);
-        // cv::waitKey(0);
     }
+
     void save_debug_image(const cv::Mat& image, const fs::path& original_path, const std::string& suffix)
 {
-    // folder debugowy
-    fs::path debug_folder = "/home/tomek/scorpio_ws/src/scorpio_zadanie_rekrutacyjne_software/assets/debug";
 
-    // utwórz folder jeśli nie istnieje
+    fs::path debug_folder = "/home/tomek/scorpio_ws/src/scorpio_zadanie_rekrutacyjne_software/assets/debug";
     fs::create_directories(debug_folder);
 
-    // nazwa bazowa pliku (bez rozszerzenia)
     std::string base_name = original_path.stem().string();
-
-    // budujemy nazwę pliku wyjściowego
     std::string file_name = base_name + "_" + suffix + ".png";
 
-    // pełna ścieżka
     fs::path output_path = debug_folder / file_name;
 
-    // zapis obrazu
     bool success = cv::imwrite(output_path.string(), image);
 
     if (!success)
@@ -167,7 +162,7 @@ private:
     }
     else
     {
-        RCLCPP_INFO(this->get_logger(), "Saved debug image: %s", output_path.c_str());
+        // RCLCPP_INFO(this->get_logger(), "Saved debug image: %s", output_path.c_str());
     }
 }
 };
