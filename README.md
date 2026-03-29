@@ -147,13 +147,17 @@ cd ~/scorpio_ws
 source install/setup.bash
 ros2 run scorpio_zadanie_rekrutacyjne_software ilmenite_check
 ```
-![Ilmenite node results](src/scorpio_zadanie_rekrutacyjne_software/assets/readme/ilmenite_check.png)
+![Ilmenite node results](assets/readme/ilmenite_check.png)
 
 ## Results
 
+### What works
 - Proper error handling implemented
 - Ilmenite percentage estimation working
 
+### Limitations
+- Small partickles are ommitted 
+- In the case of different lighting the algorithm will perform worse
 ### CubeDetection task
 
 Terminal 1:
