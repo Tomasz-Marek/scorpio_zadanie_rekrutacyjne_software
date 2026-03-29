@@ -12,3 +12,4 @@ compile_commands.json
 *.bak
 *.dSYM
 *.db3
+assets/debug/
